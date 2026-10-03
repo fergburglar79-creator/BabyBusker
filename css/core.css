@@ -125,7 +125,7 @@
       position: absolute;
       inset: 0;
       display: none;
-      padding: 16px 16px 32px 16px;
+      padding: 16px 16px 90px 16px;
       overflow-y: auto;
       overflow-x: hidden;
       -webkit-overflow-scrolling: touch;
@@ -137,6 +137,7 @@
 
     .screen.game-screen {
       padding: 14px;
+      overflow-y: auto;
       overflow: hidden;
     }
 
