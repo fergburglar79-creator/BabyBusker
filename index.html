@@ -23,20 +23,27 @@
     /* CLEAN 2-TAB BOTTOM BAR */
 
     nav#global-nav {
-      height: var(--nav-height);
-      width: 100%;
-      background: rgba(255,255,255,.96);
-      backdrop-filter: blur(16px);
-      border-top: 1px solid var(--border-subtle);
-      display: flex !important;
-      align-items: center !important;
-      justify-content: space-around !important;
-      padding: 0 40px !important;
-      box-sizing: border-box;
-      z-index: 60;
-      flex-shrink: 0;
-      margin: 0;
-    }
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    height: var(--nav-height);
+
+    width: 100%;
+
+    background: rgba(255,255,255,.96);
+
+    backdrop-filter: blur(16px);
+
+    border-top: 1px solid var(--border-subtle);
+
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
 
     .nav-tab {
       display: flex !important;
