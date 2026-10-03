@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width,
+                 initial-scale=1.0,
+                 maximum-scale=1.0,
+                 user-scalable=no,
+                 viewport-fit=cover" />
+
+  <title>BabyBusker — Musical Worlds</title>
+
+  <!-- Core Styles -->
+
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/core.css">
+
+  <!-- Temporary leftover CSS -->
+
+  <style>
+
+    /* CLEAN 2-TAB BOTTOM BAR */
+
+    nav#global-nav {
+      height: var(--nav-height);
+      width: 100%;
+      background: rgba(255,255,255,.96);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border-subtle);
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-around !important;
+      padding: 0 40px !important;
+      box-sizing: border-box;
+      z-index: 60;
+      flex-shrink: 0;
+      margin: 0;
+    }
+
+    .nav-tab {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 4px !important;
+      background: none !important;
+      border: none !important;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 6px 28px !important;
+      border-radius: var(--radius-sm);
+    }
+
+    .nav-tab.active {
+      color: var(--text-primary) !important;
+    }
+
+    #mic-banner {
+      position: absolute;
+      bottom: calc(var(--nav-height) + 10px);
+      left: 16px;
+      right: 16px;
+      background: rgba(21,24,30,.94);
+      color: white;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 100;
+    }
+
+    #mic-banner.hidden {
+      display: none !important;
+    }
+
+  </style>
+
+</head>
+<body>
+  <div id="app-viewport">
+    
+    <!-- HEADER -->
+    <header id="app-header">
+      <div class="brand-cluster" onclick="Router.go('home')">
+        <svg class="brand-logo-svg" viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="15" stroke="currentColor" stroke-width="1.8" stroke-dasharray="2 2" opacity="0.3"/>
+          <circle cx="12" cy="20" r="6" fill="#15181E"/>
+          <path d="M12 20C12 18 15 17 17 18" stroke="#FFFFFF" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M18 20V8L25 6V11" stroke="#15181E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="brand-title">BabyBusker</span>
+      </div>
+
+      <div class="header-actions-cluster">
+        <button class="dev-pass-btn" onclick="DevTools.passActiveExercise()">
+          ⚡ Pass 100%
+        </button>
+
+        <button class="mic-status-pill" id="header-mic-badge" onclick="VoiceEngine.init()">
+          🎙️ Mic Off
+        </button>
+
+        <div class="user-profile-badge" id="header-user-badge" onclick="Router.go('me')">
+          👤 <span id="header-username">Guest</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- FLOATING MIC BANNER -->
+    <div id="mic-banner">
+      <div style="font-size: 12px; font-weight: 600;">Enable mic to awaken sound</div>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <button class="btn-action" style="padding: 6px 14px; font-size: 11px;" onclick="VoiceEngine.init()">Turn On</button>
+        <span style="font-size: 14px; cursor: pointer; color: var(--text-muted);" onclick="document.getElementById('mic-banner').classList.add('hidden')">✕</span>
+      </div>
+    </div>
+
+    <!-- MAIN APP ROUTER -->
+    <main>
+
+      <!-- SCREEN 0: LAUNCH & LOGIN (USERNAME ONLY PERSISTENCE) -->
+      <section id="screen-launch" class="screen active" style="padding-top: 40px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <svg style="width: 58px; height: 58px; margin-bottom: 12px;" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="15" stroke="#0f766e" stroke-width="1.8" stroke-dasharray="3 3"/>
+            <circle cx="12" cy="20" r="6" fill="#15181E"/>
+            <path d="M12 20C12 18 15 17 17 18" stroke="#FFFFFF" stroke-width="1.4" stroke-linecap="round"/>
+            <path d="M18 20V8L25 6V11" stroke="#15181E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <h1 style="font-size: 26px; font-weight: 900; letter-spacing: -0.02em;">BabyBusker</h1>
+          <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">Musical Worlds & Physical Sound Exploration</p>
+        </div>
+
+        <div class="hub-card" style="padding: 22px;">
+          <label style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted);">Tester or Performer Username</label>
+          <input type="text" id="login-username-input" style="width: 100%; padding: 12px 16px; border-radius: var(--radius-md); border: 1.5px solid var(--border-strong); font-size: 14px; font-weight: 600; font-family: inherit; margin: 10px 0 16px;" placeholder="e.g. busker_dan" value="busker_tester" />
+          <button class="btn-action" style="width: 100%; padding: 14px; font-size: 13px;" onclick="ProfileManager.handleLogin()">
+            Enter Studio →
+          </button>
+          <p style="font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 12px;">
+            Remembers your range calibration, sweet spot & scores automatically.
+          </p>
+        </div>
+      </section>
+
+      <!-- SCREEN 0.5: ONBOARDING / INSTRUMENT INTRO -->
+      <section id="screen-onboarding" class="screen">
+        <span class="pill-tag" style="background: var(--mountain-light); color: var(--mountain-teal);">Welcome to BabyBusker</span>
+        <h1 class="hero-title" style="margin-top: 8px;">Your Musical Path Starts Here</h1>
+        <p class="hero-sub">
+          Every busker has access to the <strong>Ear & Theory Studio</strong>, but to begin your physical journey, choose your first primary instrument:
+        </p>
+
+        <div class="section-label">Choose Your Instrument</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0;">
+          <div class="hub-card" onclick="ProfileManager.selectPrimaryInstrument('voice')">
+            <span style="font-size: 24px;">🎙️</span>
+            <div style="font-weight: 800; font-size: 14px;">Voice</div>
+            <span style="font-size: 11px; color: var(--text-muted);">Range, intervals & resonance</span>
+          </div>
+
+          <div class="hub-card" onclick="ProfileManager.selectPrimaryInstrument('guitar')">
+            <span style="font-size: 24px;">🎸</span>
+            <div style="font-weight: 800; font-size: 14px;">Guitar</div>
+            <span style="font-size: 11px; color: var(--text-muted);">Tuning, frets & chord shapes</span>
+          </div>
+
+          <div class="hub-card" onclick="ProfileManager.selectPrimaryInstrument('piano')">
+            <span style="font-size: 24px;">🎹</span>
+            <div style="font-weight: 800; font-size: 14px;">Piano</div>
+            <span style="font-size: 11px; color: var(--text-muted);">88-key geography & two hands</span>
+          </div>
+
+          <div class="hub-card" onclick="ProfileManager.selectPrimaryInstrument('ukulele')">
+            <span style="font-size: 24px;">🪕</span>
+            <div style="font-weight: 800; font-size: 14px;">Ukulele</div>
+            <span style="font-size: 11px; color: var(--text-muted);">4 strings & island rhythms</span>
+          </div>
+
+          <div class="hub-card" onclick="ProfileManager.selectPrimaryInstrument('drums')">
+            <span style="font-size: 24px;">🥁</span>
+            <div style="font-weight: 800; font-size: 14px;">Drums</div>
+            <span style="font-size: 11px; color: var(--text-muted);">Pulse, groove & coordination</span>
+          </div>
+
+          <div class="hub-card" onclick="ProfileManager.selectPrimaryInstrument('trumpet')">
+            <span style="font-size: 24px;">🎺</span>
+            <div style="font-weight: 800; font-size: 14px;">Trumpet</div>
+            <span style="font-size: 11px; color: var(--text-muted);">3 valves & embouchure buzzing</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 1: DYNAMIC HOME SCREEN -->
+      <section id="screen-home" class="screen">
+        <h1 class="hero-title">Your Studios</h1>
+        <p class="hero-sub">Select your active instrument studio or train your cognitive ear.</p>
+
+        <div class="section-label">Active Primary Discipline</div>
+        
+        <div class="hub-card" id="home-primary-card" style="border-left: 4px solid var(--mountain-accent); background: linear-gradient(135deg, #ffffff 60%, var(--mountain-light) 170%);" onclick="ProfileManager.openActiveStudio()">
+          <div class="card-top-row">
+            <span class="pill-tag" style="background: var(--mountain-light); color: var(--mountain-teal);" id="home-primary-tag">Primary Studio</span>
+            <span class="pill-tag" style="background: #ffffff; color: var(--mountain-teal);">Level 1</span>
+          </div>
+          <h3 class="card-title" id="home-primary-title">🎙️ Singing & Voice Studio</h3>
+          <p class="card-desc" id="home-primary-desc">Discover your range, master intervals, and build harmonic resonance.</p>
+        </div>
+
+        <div class="hub-card" style="border-left: 4px solid var(--theory-accent); background: linear-gradient(135deg, #ffffff 60%, var(--theory-light) 170%);" onclick="Router.go('theory-hub')">
+          <div class="card-top-row">
+            <span class="pill-tag" style="background: var(--theory-light); color: var(--theory-purple);">Universal Mind</span>
+            <span class="pill-tag" style="background: #ffffff; color: var(--theory-purple);" id="home-theory-badge">Level 1: Solfège</span>
+          </div>
+          <h3 class="card-title">🎼 Ear & Theory Studio</h3>
+          <p class="card-desc">Musical language, listening recognition, and audiation across all instruments.</p>
+        </div>
+
+        <div class="section-label">Other Studios</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;" id="home-other-instruments-grid"></div>
+      </section>
+
+      <!-- SCREEN 2: VOICE STUDIO HUB -->
+      <section id="screen-voice-hub" class="screen">
+        <div class="nav-header-row">
+          <button class="back-btn" onclick="Router.go('home')">← Home</button>
+          <button class="back-btn" onclick="Router.go('range-profile')">📊 Vocal Landscape</button>
+        </div>
+
+        <h1 class="hero-title">Voice Studio</h1>
+        <p class="hero-sub">The 5-stage voice path: Discover, Control, Combine, Express, and Perform.</p>
+
+        <!-- FREE SING -->
+        <div class="hub-card" style="background: linear-gradient(135deg, #ffffff 50%, #fef3c7 180%); border-color: rgba(245, 158, 11, 0.4);" onclick="Router.go('free-sing')">
+          <div class="card-top-row">
+            <span class="pill-tag" style="background: var(--amber-light); color: var(--amber-accent);">Sandbox</span>
+            <span style="font-size: 12px; font-weight: 700; color: var(--amber-accent);">Open Mic →</span>
+          </div>
+          <h3 class="card-title">✨ Free Sing Sandbox</h3>
+          <p class="card-desc">Sing freely into an organic reactive visual canvas without scores or rules.</p>
+        </div>
+
+        <!-- TRAINER HUB -->
+        <div class="hub-card" style="border-left: 4px solid #0284c7; background: linear-gradient(135deg, #ffffff 60%, var(--hold-light) 180%);" onclick="Router.go('voice-trainer-hub')">
+          <div class="card-top-row">
+            <span class="pill-tag" style="background: #e0f2fe; color: #0284c7;">Athletic Gym</span>
+            <span style="font-size: 11px; font-weight: 800; color: #0284c7;">8 Workouts Unlocked</span>
+          </div>
+          <h3 class="card-title">🎯 Range & Agility Trainer</h3>
+          <p class="card-desc">Push your athletic bounds: Peak Ceiling, Valley Depth, Vibrato, Dynamics & Agility.</p>
+        </div>
+
+        <div class="section-label">Vocal Journeys & Exercises</div>
+
+        <!-- STAGE 1: DISCOVER -->
+        <div class="stage-group">
+          <div class="stage-group-header">
+            <div class="stage-title-wrap">
+              <div class="stage-badge" style="background: var(--mountain-light); color: var(--mountain-teal);">1</div>
+              <div>
+                <h4 style="font-size: 14px; font-weight: 800;">Stage 1: Discover</h4>
+                <div style="font-size: 11px; color: var(--text-muted);">Anchor pitch, clean attack & tone sustain</div>
+              </div>
+            </div>
+            <span class="pill-tag" style="background: var(--mountain-light); color: var(--mountain-teal);">Active</span>
+          </div>
+          <div class="stage-group-content">
+            <div class="exercise-row-card" onclick="Router.go('mountain-range-finder')">
+              <div class="exercise-row-info">
+                <h4>🌄 Mountain High, Valley Low</h4>
+                <span>Calibrate natural anchor & explore peak & valley limits</span>
+              </div>
+              <span style="font-size: 12px; font-weight: 700; color: var(--mountain-teal);">Play →</span>
+            </div>
+            <div class="exercise-row-card" onclick="Router.go('exercise-beacon')">
+              <div class="exercise-row-info">
+                <h4>💡 The Beacon</h4>
+                <span>Clean attack & direct onset: strike notes without scooping</span>
+              </div>
+              <span style="font-size: 12px; font-weight: 700; color: var(--beacon-gold);">Play →</span>
+            </div>
+            <div class="exercise-row-card" onclick="Router.go('exercise-hold')">
+              <div class="exercise-row-info">
+                <h4>⏱️ The Hold</h4>
+                <span>Sustained breath control & personal best hold record</span>
+              </div>
+              <span style="font-size: 12px; font-weight: 700; color: var(--hold-cyan);">Play →</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- STAGE 2: CONTROL -->
+        <div class="stage-group">
+          <div class="stage-group-header">
+            <div class="stage-title-wrap">
+              <div class="stage-badge" style="background: var(--ribbon-light); color: var(--ribbon-fuchsia);">2</div>
+              <div>
+                <h4 style="font-size: 14px; font-weight: 800;">Stage 2: Control</h4>
+                <div style="font-size: 11px; color: var(--text-muted);">Shape sound: quiet & loud tones, dynamic swells, and vibrato waves</div>
+              </div>
+            </div>
+            <span class="pill-tag" style="background: var(--ribbon-light); color: var(--ribbon-fuchsia);">Unlocked</span>
+          </div>
+          <div class="stage-group-content">
+            <div class="exercise-row-card" onclick="Router.go('exercise-ribbon')">
+              <div class="exercise-row-info">
+                <h4>🎀 The Ribbon</h4>
+                <span>Trace ghost sound shapes: pianissimo, forte, swells & vibrato</span>
+              </div>
+              <span style="font-size: 12px; font-weight: 700; color: var(--ribbon-fuchsia);">Play →</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- STAGE 3: COMBINE -->
+        <div class="stage-group">
+          <div class="stage-group-header">
+            <div class="stage-title-wrap">
+              <div class="stage-badge" style="background: var(--chamber-light); color: var(--chamber-indigo);">3</div>
+              <div>
+                <h4 style="font-size: 14px; font-weight: 800;">Stage 3: Combine</h4>
+                <div style="font-size: 11px; color: var(--text-muted);">Interval jumps, acoustic drones & chord triads</div>
+              </div>
+            </div>
+            <span class="pill-tag" style="background: var(--chamber-light); color: var(--chamber-indigo);">Unlocked</span>
+          </div>
+          <div class="stage-group-content">
+            <div class="exercise-row-card" onclick="Router.go('resonance-chamber')">
+              <div class="exercise-row-info">
+                <h4>🏛️ Resonance Chamber</h4>
+                <span>Harmonies, multi-voice chords & the Amen resolution</span>
+              </div>
+              <span style="font-size: 12px; font-weight: 700; color: var(--chamber-indigo);">Play →</span>
+            </div>
+            <div class="exercise-row-card" onclick="Router.go('exercise-steps')">
+              <div class="exercise-row-info">
+                <h4>👣 The Steps</h4>
+                <span>Multi-round interval jumps: 1→Degree, 3-note phrases & 9ths</span>
+              </div>
+              <span style="font-size: 12px; font-weight: 700; color: var(--chamber-indigo);">Play →</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- STAGE 4: EXPRESS -->
+        <div class="stage-group">
+          <div class="stage-group-header">
+            <div class="stage-title-wrap">
+              <div class="stage-badge" style="background: var(--flight-light); color: var(--flight-orange);">4</div>
+              <div>
+                <h4 style="font-size: 14px; font-weight: 800;">Stage 4: Express</h4>
+                <div style="font-size: 11px; color: var(--text-muted);">Musical memory & call-and-response</div>
+              </div>
+            </div>
+            <span class="pill-tag" style="background: var(--flight-light); color: var(--flight-orange);">Unlocked</span>
+          </div>
+          <div class="stage-group-content">
+            <div class="exercise-row-card" onclick="Router.go('echo-chamber')">
+              <div class="exercise-row-info">
+                <h4>🗣️ Echo Chamber</h4>
+                <span>Hear a motif → remember it → reproduce it cleanly</span>
+              </div>
+              <span style="font-size: 12px; font-weight: 700; color: var(--flight-orange);">Play →</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PLACEHOLDER STUDIOS FOR OTHER INSTRUMENTS -->
+      <section id="screen-guitar-hub" class="screen">
+        <div class="nav-header-row"><button class="back-btn" onclick="Router.go('home')">← Home</button><span class="pill-tag" style="background: var(--amber-light); color: var(--amber-accent);">Guitar Studio</span></div>
+        <h1 class="hero-title">🎸 Guitar Studio</h1>
+        <p class="hero-sub">Standard E-A-D-G-B-E tuning, frets & chord shapes.</p>
+        <div class="hub-card" style="border-left: 4px solid var(--amber-accent);"><h3>Tune the Bridge</h3><p class="card-desc">Standard 6-string open tuning alignment.</p></div>
+      </section>
+
+      <section id="screen-piano-hub" class="screen">
+        <div class="nav-header-row"><button class="back-btn" onclick="Router.go('home')">← Home</button><span class="pill-tag" style="background: var(--chamber-light); color: var(--chamber-indigo);">Piano Studio</span></div>
+        <h1 class="hero-title">🎹 Piano Studio</h1>
+        <p class="hero-sub">88-key geography, finger numbering 1–5, and two-hand balance.</p>
+        <div class="hub-card" style="border-left: 4px solid var(--chamber-accent);"><h3>Finding Middle C</h3><p class="card-desc">Black-key landmark navigation.</p></div>
+      </section>
+
+      <section id="screen-ukulele-hub" class="screen">
+        <div class="nav-header-row"><button class="back-btn" onclick="Router.go('home')">← Home</button><span class="pill-tag" style="background: var(--sweetspot-light); color: var(--sweetspot-green);">Ukulele Studio</span></div>
+        <h1 class="hero-title">🪕 Ukulele Studio</h1>
+        <p class="hero-sub">4-string G-C-E-A tuning & island strumming rhythms.</p>
+        <div class="hub-card" style="border-left: 4px solid var(--sweetspot-green);"><h3>Open String Strumming</h3><p class="card-desc">Rhythm pocket on 4 strings.</p></div>
+      </section>
+
+      <section id="screen-drums-hub" class="screen">
+        <div class="nav-header-row"><button class="back-btn" onclick="Router.go('home')">← Home</button><span class="pill-tag" style="background: var(--flight-light); color: var(--flight-orange);">Drums Studio</span></div>
+        <h1 class="hero-title">🥁 Drums Studio</h1>
+        <p class="hero-sub">Groove pocket, kick/snare and limb coordination.</p>
+        <div class="hub-card" style="border-left: 4px solid var(--flight-orange);"><h3>Four-on-the-Floor</h3><p class="card-desc">Locking into the pocket with bass drum pulse.</p></div>
+      </section>
+
+      <section id="screen-trumpet-hub" class="screen">
+        <div class="nav-header-row"><button class="back-btn" onclick="Router.go('home')">← Home</button><span class="pill-tag" style="background: var(--theory-light); color: var(--theory-purple);">Trumpet Studio</span></div>
+        <h1 class="hero-title">🎺 Trumpet Studio</h1>
+        <p class="hero-sub">3 valves, embouchure buzzing & harmonic series.</p>
+        <div class="hub-card" style="border-left: 4px solid var(--theory-accent);"><h3>Mouthpiece Buzz</h3><p class="card-desc">Targeting clean harmonics.</p></div>
+      </section>
+
+      <!-- SCREEN 3: RANGE & AGILITY TRAINER (FIXED ACTIVE) -->
+      <section id="screen-voice-trainer-hub" class="screen">
+        <div class="nav-header-row">
+          <button class="back-btn" onclick="Router.go('voice-hub')">← Studio</button>
+          <span class="pill-tag" style="background: #e0f2fe; color: #0284c7;">Limits Gym</span>
+        </div>
+
+        <h1 class="hero-title">Range & Agility Trainer</h1>
+        <p class="hero-sub">Athletic workouts pushing beyond your comfortable bounds.</p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+          <button class="focus-btn active" id="btn-focus-precision" onclick="VoiceTrainer.selectFocus('precision')">🎯 Precision (±15c)</button>
+          <button class="focus-btn" id="btn-focus-highest" onclick="VoiceTrainer.selectFocus('highest')">⛰️ Peak Ceiling</button>
+          <button class="focus-btn" id="btn-focus-lowest" onclick="VoiceTrainer.selectFocus('lowest')">🌊 Valley Depth</button>
+          <button class="focus-btn" id="btn-focus-sustain" onclick="VoiceTrainer.selectFocus('sustain')">⏱️ 5s Sustain</button>
+          <button class="focus-btn" id="btn-focus-agility" onclick="VoiceTrainer.selectFocus('agility')">🦅 Agility Sprints</button>
+          <button class="focus-btn" id="btn-focus-vibrato" onclick="VoiceTrainer.selectFocus('vibrato')">〰️ Natural Vibrato</button>
+          <button class="focus-btn" id="btn-focus-loud" onclick="VoiceTrainer.selectFocus('loud')">📢 Power & Swell</button>
+          <button class="focus-btn" id="btn-focus-soft" onclick="VoiceTrainer.selectFocus('soft')">🤫 Gentle Softness</button>
+        </div>
+
+        <div class="exercise-box" style="min-height: 200px;">
+          <div class="coach-bubble">
+            <div style="font-size: 20px;" id="trainer-coach-icon">🎯</div>
+            <div class="coach-text" id="trainer-coach-prompt">
+              Sing the target tone with studio precision (within ±15 cents).
+            </div>
+          </div>
+
+          <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;" id="trainer-target-meta">Target Note</div>
+            <div style="font-size: 44px; font-weight: 900;" id="trainer-target-display">C4</div>
+            <div style="font-size: 13px; font-weight: 700; color: var(--mountain-teal);" id="trainer-metric-readout">Live Pitch: --</div>
+          </div>
+
+          <button class="btn-action" style="width: 100%;" onclick="VoiceTrainer.playReference()">🔊 Play Reference Tone</button>
+        </div>
+      </section>
+
+      <!-- THE BEACON -->
+      <section id="screen-exercise-beacon" class="screen game-screen">
+        <div class="nav-header-row">
+          <button class="back-btn" onclick="Router.go('voice-hub')">← Studio</button>
+          <div style="display: flex; gap: 6px;">
+            <button class="back-btn" onclick="ExerciseBeacon.showPreflight()">⚙️ Rounds</button>
+            <button class="back-btn" onclick="ExerciseBeacon.playTone()">🔊 Hear Tone</button>
+          </div>
+        </div>
+
+        <div class="exercise-box">
+          <div class="exercise-preflight-card" id="beacon-preflight">
+            <div>
+              <div class="preflight-header-badge" style="color: var(--beacon-gold);">💡 Stage 1 • Exercise 02</div>
+              <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 4px;">The Beacon</h2>
+              <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">Audiate the pitch in your mind, then strike dead-center on the first instant.</p>
+              <div class="round-picker-section">
+                <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--text-muted);">Select Round:</span>
+                <div class="round-picker-grid" id="beacon-round-pills"></div>
+                <div class="round-preview-box" id="beacon-round-preview-desc">Strike cleanly without scooping from below.</div>
+              </div>
+            </div>
+            <button class="btn-action" style="width: 100%; padding: 14px;" onclick="ExerciseBeacon.launchGame()">▶ Start Round</button>
+          </div>
+
+          <div class="coach-bubble">
+            <div style="font-size: 20px;">💡</div>
+            <div class="coach-text" id="beacon-coach-text">Listen to the chime... hold in mind, then strike dead-center!</div>
+          </div>
+
+          <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
+            <div style="font-size: 11px; font-weight: 800; color: var(--beacon-gold); text-transform: uppercase;" id="beacon-round-label">Round 1: Anchor Bullseye</div>
+            <div class="streak-container" id="beacon-streak-pips">
+              <div class="streak-pip" id="pip-0"></div>
+              <div class="streak-pip" id="pip-1"></div>
+              <div class="streak-pip" id="pip-2"></div>
+            </div>
+            <div class="beacon-halo-ring" id="beacon-halo">
+              <div class="beacon-center-disc" id="beacon-disc">
+                <div class="beacon-note-title" id="beacon-note-name">C4</div>
+                <div class="beacon-step-subtitle" id="beacon-state-sub">Listening...</div>
+              </div>
+            </div>
+            <div style="font-size: 13px; font-weight: 800; margin-top: 12px;" id="beacon-attack-feedback">Waiting for sound...</div>
+
+            <!-- Choice Modal -->
+            <div class="round-complete-modal" id="beacon-round-modal">
+              <div style="font-size: 38px; margin-bottom: 6px;">🎯</div>
+              <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 4px;" id="beacon-modal-title">Round Cleared!</h3>
+              <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.4;" id="beacon-modal-desc">Clean direct onset without scooping.</p>
+              <div class="modal-btn-row">
+                <button class="btn-action secondary" style="flex: 1;" onclick="Router.go('voice-hub')">← Voice Studio</button>
+                <button class="btn-action" style="flex: 1;" onclick="ExerciseBeacon.advanceRound()">▶ Next Round</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="status-hud-bar">
+            <div>
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-muted);" id="beacon-progress-label">Streak: 0 of 3</div>
+              <div style="font-size: 13px; font-weight: 800;" id="beacon-attack-rating">Ready for strike</div>
+            </div>
+            <button class="btn-action secondary" style="padding: 4px 10px; font-size: 11px;" onclick="ExerciseBeacon.nextTarget()">Skip Note →</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- THE HOLD -->
+      <section id="screen-exercise-hold" class="screen game-screen">
+        <div class="nav-header-row">
+          <button class="back-btn" onclick="Router.go('voice-hub')">← Studio</button>
+          <div style="display: flex; gap: 6px;">
+            <button class="back-btn" onclick="ExerciseHold.showPreflight()">⚙️ Rounds</button>
+            <button class="back-btn" id="hold-record-badge" style="color: var(--hold-cyan); font-weight: 800;">PR: 0.0s</button>
+            <button class="back-btn" onclick="ExerciseHold.playTone()">🔊 Tone</button>
+          </div>
+        </div>
+
+        <div class="exercise-box">
+          <div class="exercise-preflight-card" id="hold-preflight">
+            <div>
+              <div class="preflight-header-badge" style="color: var(--hold-cyan);">⏱️ Stage 1 • Exercise 03</div>
+              <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 4px;">The Hold</h2>
+              <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">Sustain an unbroken silk thread without letting pitch waver or sag.</p>
+              <div class="round-picker-section">
+                <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--text-muted);">Select Round:</span>
+                <div class="round-picker-grid" id="hold-round-pills"></div>
+                <div class="round-preview-box" id="hold-round-preview-desc">Sustain your anchor pitch.</div>
+              </div>
+            </div>
+            <button class="btn-action" style="width: 100%; padding: 14px;" onclick="ExerciseHold.launchGame()">▶ Start Round</button>
+          </div>
+
+          <div class="coach-bubble">
+            <div style="font-size: 20px;">⏱️</div>
+            <div class="coach-text" id="hold-coach-text">Hold with steady breath! Weave an unbroken thread.</div>
+          </div>
+
+          <div style="flex: 1; position: relative; border-radius: var(--radius-md); overflow: hidden; background: #ffffff; border: 1px solid var(--border-subtle); display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <canvas id="holdSilkCanvas" style="position: absolute; inset: 0; width: 100%; height: 100%;"></canvas>
+            <div style="position: relative; z-index: 10; text-align: center;">
+              <div style="font-size: 11px; font-weight: 800; color: var(--hold-cyan); text-transform: uppercase;" id="hold-round-name">Round 1: The Anchor Thread</div>
+              <div style="font-size: 42px; font-weight: 900; margin: 4px 0;" id="hold-timer-display">0.0s</div>
+              <div style="font-size: 12px; font-weight: 700; color: var(--text-muted);" id="hold-target-label">Target: 3.0 seconds</div>
+            </div>
+
+            <!-- Choice Modal -->
+            <div class="round-complete-modal" id="hold-round-modal">
+              <div style="font-size: 38px; margin-bottom: 6px;">🏆</div>
+              <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 4px;" id="hold-modal-title">Target Reached!</h3>
+              <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.4;" id="hold-modal-desc">Steady breath support locked without sagging.</p>
+              <div class="modal-btn-row">
+                <button class="btn-action secondary" style="flex: 1;" onclick="Router.go('voice-hub')">← Voice Studio</button>
+                <button class="btn-action" style="flex: 1;" onclick="ExerciseHold.advanceStep()">▶ Next Round</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="status-hud-bar">
+            <div>
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-muted);" id="hold-stability-label">Stability: Steady</div>
+              <div style="font-size: 13px; font-weight: 800;" id="hold-live-readout">Sing to start timer</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- THE RIBBON -->
+      <section id="screen-exercise-ribbon" class="screen game-screen">
+        <div class="nav-header-row">
+          <button class="back-btn" onclick="Router.go('voice-hub')">← Studio</button>
+          <div style="display: flex; gap: 6px;">
+            <button class="back-btn" onclick="ExerciseRibbon.showPreflight()">⚙️ Rounds</button>
+            <button class="back-btn" onclick="ExerciseRibbon.playTone()">🔊 Hear Tone</button>
+          </div>
+        </div>
+
+        <div class="exercise-box" style="background: linear-gradient(180deg, #fdf4ff 0%, #ffffff 85%);">
+          <div class="exercise-preflight-card" id="ribbon-preflight">
+            <div>
+              <div class="preflight-header-badge" style="color: var(--ribbon-fuchsia);">🎀 Stage 2 • Exercise 01</div>
+              <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 4px;">The Ribbon</h2>
+              <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">Pour your voice into the ghost container. Match line thickness (volume) and waves (vibrato).</p>
+              <div class="round-picker-section">
+                <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--text-muted);">Select Round:</span>
+                <div class="round-picker-grid" id="ribbon-round-pills"></div>
+                <div class="round-preview-box" id="ribbon-round-preview-desc">Hold a gentle thin sound inside the narrow ribbon.</div>
+              </div>
+            </div>
+            <button class="btn-action" style="width: 100%; padding: 14px;" onclick="ExerciseRibbon.launchGame()">▶ Start Round</button>
+          </div>
+
+          <div class="coach-bubble">
+            <div style="font-size: 20px;">🎀</div>
+            <div class="coach-text" id="ribbon-coach-text">Pour your voice into the ghost container!</div>
+          </div>
+
+          <div style="flex: 1; position: relative; border-radius: var(--radius-md); overflow: hidden; background: #ffffff; border: 1px solid var(--border-subtle); display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <canvas id="ribbonCanvas" style="position: absolute; inset: 0; width: 100%; height: 100%;"></canvas>
+            <div style="position: relative; z-index: 10; text-align: center; pointer-events: none;">
+              <div style="font-size: 11px; font-weight: 800; color: var(--ribbon-fuchsia); text-transform: uppercase;" id="ribbon-round-title">Round 1: The Quiet Thread</div>
+              <div style="font-size: 28px; font-weight: 900; margin: 4px 0;" id="ribbon-feedback-label">Sing softly to fill</div>
+              <div style="font-size: 11px; font-weight: 700; color: var(--text-muted);" id="ribbon-target-meta">Pianissimo • 3.5s</div>
+            </div>
+
+            <!-- Choice Modal -->
+            <div class="round-complete-modal" id="ribbon-round-modal">
+              <div style="font-size: 38px; margin-bottom: 6px;">✨</div>
+              <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 4px;" id="ribbon-modal-title">Ribbon Filled!</h3>
+              <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.4;" id="ribbon-modal-desc">Contour sculpted cleanly with breath control.</p>
+              <div class="modal-btn-row">
+                <button class="btn-action secondary" style="flex: 1;" onclick="Router.go('voice-hub')">← Voice Studio</button>
+                <button class="btn-action" style="flex: 1;" onclick="ExerciseRibbon.advanceRound()">▶ Next Round</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="status-hud-bar">
+            <div>
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-muted);" id="ribbon-status-sub">Fill Progress: 0%</div>
+              <div style="font-size: 13px; font-weight: 800;" id="ribbon-readout">Waiting for breath...</div>
+            </div>
+            <button class="btn-action secondary" style="padding: 4px 10px; font-size: 11px;" onclick="ExerciseRibbon.skipRound()">Skip Contour →</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ECHO CHAMBER -->
+      <section id="screen-echo-chamber" class="screen game-screen">
+        <div class="nav-header-row">
+          <button class="back-btn" onclick="Router.go('voice-hub')">← Studio</button>
+          <div style="display: flex; gap: 6px;">
+            <button class="back-btn" onclick="EchoMemoryGame.showPreflight()">⚙️ Rounds</button>
+            <button class="back-btn" onclick="EchoMemoryGame.playPhrase()">🔊 Hear Motif</button>
+          </div>
+        </div>
+
+        <div class="exercise-box">
+          <div class="exercise-preflight-card" id="echo-preflight">
+            <div>
+              <div class="preflight-header-badge" style="color: var(--flight-orange);">🗣️ Stage 4 • Exercise 01</div>
+              <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 4px;">Echo Chamber</h2>
+              <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">Hear a musical motif, hold it in memory, and echo it cleanly back.</p>
+              <div class="round-picker-section">
+                <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--text-muted);">Select Round:</span>
+                <div class="round-picker-grid" id="echo-round-pills"></div>
+                <div class="round-preview-box" id="echo-round-preview-desc">Short interval calls: hear, audiate, and echo.</div>
+              </div>
+            </div>
+            <button class="btn-action" style="width: 100%; padding: 14px;" onclick="EchoMemoryGame.launchGame()">▶ Start Round</button>
+          </div>
+
+          <div class="coach-bubble">
+            <div style="font-size: 20px;">🗣️</div>
+            <div class="coach-text" id="echo-coach-text">Listen carefully to the motif. Hold it in memory, then echo it cleanly!</div>
+          </div>
+
+          <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;" id="echo-phrase-title">Motif Memory</div>
+            <div style="font-size: 32px; font-weight: 900; letter-spacing: 0.08em; color: var(--flight-orange); text-align: center; padding: 0 16px;" id="echo-motif-display">Do — Sol</div>
+            <div style="font-size: 13px; font-weight: 700; color: var(--text-secondary); margin-top: 14px;" id="echo-status-readout">Listen to prompt...</div>
+
+            <!-- Choice Modal -->
+            <div class="round-complete-modal" id="echo-round-modal">
+              <div style="font-size: 38px; margin-bottom: 6px;">🎶</div>
+              <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 4px;" id="echo-modal-title">Round Cleared!</h3>
+              <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.4;" id="echo-modal-desc">Phrase accurately reproduced from memory.</p>
+              <div class="modal-btn-row">
+                <button class="btn-action secondary" style="flex: 1;" onclick="Router.go('voice-hub')">← Voice Studio</button>
+                <button class="btn-action" style="flex: 1;" onclick="EchoMemoryGame.advanceRound()">▶ Next Round</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="status-hud-bar">
+            <div>
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-muted);" id="echo-progress-counter">Phrase 1 of 3</div>
+              <div style="font-size: 13px; font-weight: 800;" id="echo-readout">Waiting for response...</div>
+            </div>
+            <button class="btn-action secondary" style="padding: 4px 10px; font-size: 11px;" onclick="EchoMemoryGame.playPhrase()">Replay Motif</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- RESONANCE CHAMBER -->
+      <section id="screen-resonance-chamber" class="screen game-screen">
+        <div class="nav-header-row">
+          <button class="back-btn" onclick="Router.go('voice-hub')">← Studio</button>
+          <div style="display: flex; gap: 6px;">
+            <button class="back-btn" onclick="ResonanceChamber.showPreflight()">⚙️ Rounds</button>
+            <button class="back-btn" onclick="ResonanceChamber.playFullChordGuide()">🔊 Chord</button>
+          </div>
+        </div>
+
+        <div class="exercise-box" style="background: linear-gradient(180deg, #eef2ff 0%, #ffffff 80%);">
+          <div class="exercise-preflight-card" id="resonance-preflight">
+            <div>
+              <div class="preflight-header-badge" style="color: var(--chamber-indigo);">🏛️ Stage 3 • Exercise 01</div>
+              <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 4px;">Resonance Chamber</h2>
+              <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">Lock root drones, build major/minor triads, and experience the Amen cadence.</p>
+              <div class="round-picker-section">
+                <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--text-muted);">Select Round:</span>
+                <div class="round-picker-grid" id="resonance-round-pills"></div>
+                <div class="round-preview-box" id="resonance-round-preview-desc">Lock the root drone, then find harmony.</div>
+              </div>
+            </div>
+            <button class="btn-action" style="width: 100%; padding: 14px;" onclick="ResonanceChamber.launchGame()">▶ Start Round</button>
+          </div>
+
+          <div class="coach-bubble">
+            <div style="font-size: 20px;">🏛️</div>
+            <div class="coach-text" id="resonance-coach-text">Find the root note first. The chamber will drone it as your guide!</div>
+          </div>
+
+          <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
+            <div style="font-size: 11px; font-weight: 800; color: var(--chamber-indigo); text-transform: uppercase;" id="resonance-round-title">Round 1: 2-Voice Dyads</div>
+            <div style="font-size: 15px; font-weight: 800; margin-top: 2px;" id="resonance-chord-name">Root & Fifth (Power Dyad)</div>
+            <div class="chord-holders-wrap" id="resonance-holders-container"></div>
+            <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-top: 8px;" id="resonance-sub-prompt">Sing Note 1 (Root)</div>
+
+            <!-- Choice Modal -->
+            <div class="round-complete-modal" id="resonance-round-modal">
+              <div style="font-size: 38px; margin-bottom: 6px;">✨</div>
+              <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 4px;" id="resonance-modal-title">Round Complete!</h3>
+              <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.4;" id="resonance-modal-desc">Harmony locked against drone.</p>
+              <div class="modal-btn-row">
+                <button class="btn-action secondary" style="flex: 1;" onclick="Router.go('voice-hub')">← Voice Studio</button>
+                <button class="btn-action" style="flex: 1;" onclick="ResonanceChamber.advanceRound()">▶ Next Round</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="status-hud-bar">
+            <div>
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-muted);" id="resonance-progress-counter">Chord 1 of 4</div>
+              <div style="font-size: 13px; font-weight: 800;" id="resonance-readout">Find the Root...</div>
+            </div>
+            <button class="btn-action secondary" style="padding: 4px 10px; font-size: 11px;" onclick="ResonanceChamber.skipChord()">Skip Chord →</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- MOUNTAIN RANGE FINDER -->
+      <section id="screen-mountain-range-finder" class="screen game-screen">
+        <div class="nav-header-row">
+          <button class="back-btn" onclick="Router.go('voice-hub')">← Studio</button>
+          <button class="back-btn" onclick="MountainRangeFinder.playCurrentTargetTone()">🔊 Hear Tone</button>
+        </div>
+
+        <div class="exercise-box">
+          <div class="exercise-preflight-card" id="mountain-preflight">
+            <div>
+              <div class="preflight-header-badge" style="color: var(--mountain-teal);">🌄 Stage 1 • Exercise 01</div>
+              <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 4px;">Mountain High, Valley Low</h2>
+              <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">
+                Discover your natural range. Once calibrated, all other exercises automatically adapt to your personal voice!
+              </p>
+              <div class="round-preview-box" style="margin-top: 14px;">
+                <strong>Calibration Steps:</strong><br/>
+                1. Hum any comfortable anchor note (Do, La, Ah).<br/>
+                2. Step higher until your ceiling.<br/>
+                3. Descend into the valley to find your deepest tones.
+              </div>
+            </div>
+            <button class="btn-action" style="width: 100%; padding: 14px;" onclick="MountainRangeFinder.launchGame()">▶ Begin Calibration</button>
+          </div>
+
+          <div class="coach-bubble">
+            <div style="font-size: 20px;">🌄</div>
+            <div class="coach-text" id="mountain-coach-text">Hum or sing any comfortable note to set your anchor.</div>
+          </div>
+
+          <div class="trail-canvas-wrap">
+            <canvas id="mountainTrailCanvas"></canvas>
+            <div class="waypoint-beacon-container">
+              <div class="beacon-halo-ring" id="mountain-halo-ring">
+                <svg class="beacon-progress-svg">
+                  <circle class="beacon-progress-circle" id="mountain-progress-circle" cx="59" cy="59" r="46"></circle>
+                </svg>
+                <div class="beacon-center-disc">
+                  <div class="beacon-note-title" id="mountain-target-note">--</div>
+                  <div class="beacon-step-subtitle" id="mountain-target-step">Anchor</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="status-hud-bar">
+            <div>
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-muted);" id="mountain-phase-name">Step 1: Anchor Note</div>
+              <div style="font-size: 13px; font-weight: 800;" id="mountain-status-readout">Sing comfortably...</div>
+            </div>
+            <div class="difficulty-chip" id="mountain-difficulty-chip">Beginner (0.8s)</div>
+          </div>
+
+          <button class="boundary-limit-btn anchor-mode" id="mountain-boundary-btn" onclick="MountainRangeFinder.handleBoundaryClick()">🎯 Lock Anchor Note</button>
+          <div class="action-sub-row">
+            <button class="btn-action secondary" style="flex: 1;" onclick="MountainRangeFinder.reset()">Reset</button>
+            <button class="btn-action secondary" style="flex: 1;" id="mountain-skip-btn" onclick="MountainRangeFinder.advanceStep()">Skip Note</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- THE STEPS -->
+      <section id="screen-exercise-steps" class="screen game-screen">
+        <div class="nav-header-row">
+          <button class="back-btn" onclick="Router.go('voice-hub')">← Studio</button>
+          <div style="display: flex; gap: 6px;">
+            <button class="back-btn" onclick="ExerciseSteps.showPreflight()">⚙️ Rounds</button>
+            <button class="back-btn" id="steps-mode-toggle" onclick="ExerciseSteps.toggleMode()">Mode: Beginner</button>
+            <button class="back-btn" onclick="ExerciseSteps.playCurrentGuideTone()">🔊 Tone</button>
+          </div>
+        </div>
+
+        <div class="exercise-box">
+          <div class="exercise-preflight-card" id="steps-preflight">
+            <div>
+              <div class="preflight-header-badge" style="color: var(--chamber-indigo);">👣 Stage 3 • Exercise 02</div>
+              <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 4px;">The Steps</h2>
+              <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">
+                Conquer interval leaps without dragging. Move cleanly from tonic to scale degrees and extended 9ths.
+              </p>
+              <div class="round-picker-section">
+                <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--text-muted);">Select Round:</span>
+                <div class="round-picker-grid" id="steps-round-pills"></div>
+                <div class="round-preview-box" id="steps-round-preview-desc">Step cleanly from Tonic to each note in the scale.</div>
+              </div>
+            </div>
+            <button class="btn-action" style="width: 100%; padding: 14px;" onclick="ExerciseSteps.launchGame()">▶ Start Round</button>
+          </div>
+
+          <div class="coach-bubble">
+            <div style="font-size: 20px;">👣</div>
+            <div class="coach-text" id="steps-coach-text">Sing each note cleanly in sequence without dragging your voice.</div>
+          </div>
+
+          <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
+            <div style="font-size: 11px; font-weight: 800; color: var(--chamber-indigo); text-transform: uppercase;" id="steps-round-label">Round 1: The Anchor Intervals</div>
+            <div id="steps-nodes-container" style="display: flex; align-items: center; justify-content: center; gap: 12px; margin: 8px 0;"></div>
+            <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-top: 10px;" id="steps-sub-prompt">Sing Note 1 (Tonic)</div>
+
+            <!-- Choice Modal -->
+            <div class="round-complete-modal" id="steps-round-modal">
+              <div style="font-size: 38px; margin-bottom: 6px;">🎉</div>
+              <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 4px;" id="steps-modal-title">Round Complete!</h3>
+              <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.4;" id="steps-modal-desc">Clean intervals mapped.</p>
+              <div class="modal-btn-row">
+                <button class="btn-action secondary" style="flex: 1;" onclick="Router.go('voice-hub')">← Voice Studio</button>
+                <button class="btn-action" style="flex: 1;" onclick="ExerciseSteps.advanceRound()">▶ Next Round</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="status-hud-bar">
+            <div>
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-muted);" id="steps-progress-counter">Phrase 1 of 7</div>
+              <div style="font-size: 13px; font-weight: 800;" id="steps-readout">Sing clearly...</div>
+            </div>
+            <button class="btn-action secondary" style="padding: 4px 10px; font-size: 11px;" onclick="ExerciseSteps.skipPhrase()">Skip Phrase →</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4-TIER VOCAL SPECTRUM -->
+      <section id="screen-range-profile" class="screen">
+        <div class="nav-header-row">
+          <button class="back-btn" onclick="Router.go('voice-hub')">← Studio</button>
+          <span class="pill-tag" style="background: var(--sweetspot-light); color: var(--sweetspot-green);">Territory Map</span>
+        </div>
+        <h1 class="hero-title">Your Vocal Landscape</h1>
+        <p class="hero-sub">Range isn't a bragging score. It's the map between the Meadow, Summit, and Valley.</p>
+
+        <div class="spectrum-card">
+          <div style="display: flex; justify-content: space-between; align-items: baseline;">
+            <div>
+              <span style="font-size: 11px; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">Observed Range</span>
+              <div style="font-size: 24px; font-weight: 900;" id="sweetspot-total-notes">C#2 – C5</div>
+            </div>
+            <div style="text-align: right;">
+              <span style="font-size: 11px; color: var(--text-muted); font-weight: 800; text-transform: uppercase;">Breadth</span>
+              <div style="font-size: 14px; font-weight: 800; color: var(--text-secondary);" id="sweetspot-octaves">2.9 Octaves</div>
+            </div>
+          </div>
+
+          <div class="spectrum-bar-wrap">
+            <div class="spectrum-zone zone-valley" id="zone-bar-valley" style="width: 25%;"><span>Valley</span></div>
+            <div class="spectrum-zone zone-meadow" id="zone-bar-meadow" style="width: 50%;"><span>🌿 The Meadow (Green Zone)</span></div>
+            <div class="spectrum-zone zone-summit" id="zone-bar-summit" style="width: 25%;"><span>Summit</span></div>
+          </div>
+
+          <div class="territory-grid">
+            <div class="territory-item highlight-meadow">
+              <span style="font-size: 10px; font-weight: 800; color: var(--sweetspot-green); text-transform: uppercase;">🌿 The Meadow</span>
+              <div style="font-size: 16px; font-weight: 800;" id="sweetspot-comfort-notes">A2 – D4</div>
+            </div>
+            <div class="territory-item">
+              <span style="font-size: 10px; font-weight: 800; color: var(--amber-accent); text-transform: uppercase;">⛰️ The Summit</span>
+              <div style="font-size: 16px; font-weight: 800;" id="sweetspot-summit-notes">D#4 – C5</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-action" style="width: 100%;" onclick="Router.go('mountain-range-finder')">🔄 Recalibrate Range</button>
+      </section>
+
+      <!-- FREE SING -->
+      <section id="screen-free-sing" class="screen game-screen">
+        <div class="nav-header-row">
+          <button class="back-btn" onclick="Router.go('voice-hub')">← Studio</button>
+          <div class="pill-tag" style="background: var(--amber-light); color: var(--amber-accent);">Open Mic</div>
+        </div>
+        <div style="flex: 1; border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); background: radial-gradient(circle at 50% 50%, #ffffff 0%, #fafafa 100%); position: relative; overflow: hidden;">
+          <div style="position: absolute; top: 16px; left: 20px; pointer-events: none;">
+            <div style="font-size: 38px; font-weight: 900;" id="freesing-note">--</div>
+            <div style="font-size: 12px; color: var(--text-muted);" id="freesing-freq">Sing freely into the room</div>
+          </div>
+          <canvas id="freeSingCanvas" style="width: 100%; height: 100%;"></canvas>
+        </div>
+      </section>
+
+      <!-- SCREEN: EAR & THEORY STUDIO HUB -->
+      <section id="screen-theory-hub" class="screen">
+        <div class="nav-header-row">
+          <button class="back-btn" onclick="Router.go('home')">← Home</button>
+          <span class="pill-tag" style="background: var(--theory-light); color: var(--theory-purple);">Universal Mind</span>
+        </div>
+
+        <h1 class="hero-title">Ear & Theory Studio</h1>
+        <p class="hero-sub">The cognitive map of music: ear training, keyboard geometry, and notation without mic pressure.</p>
+
+        <!-- LEVEL 1: NOTES & DIRECTION -->
+        <div class="stage-group">
+          <div class="stage-group-header">
+            <div class="stage-title-wrap">
+              <div class="stage-badge" style="background: var(--theory-light); color: var(--theory-purple);">1</div>
+              <div>
+                <h4 style="font-size: 14px; font-weight: 800;">Level 1: Notes & Direction</h4>
+                <div style="font-size: 11px; color: var(--text-muted);">Sound heights, keyboard geography & staff lines</div>
+              </div>
+            </div>
+            <span class="pill-tag" style="background: var(--theory-light); color: var(--theory-purple);">Active</span>
+          </div>
+
+          <div class="stage-group-content">
+            <!-- EXERCISE 1 -->
+            <div class="exercise-row-card" onclick="Router.go('theory-higher-lower')">
+              <div class="exercise-row-info">
+                <h4>↕️ Higher or Lower</h4>
+                <span>Blind ear comparison → Staff height → Note placement</span>
+              </div>
+              <span style="font-size: 12px; font-weight: 700; color: var(--theory-purple);">Play →</span>
+            </div>
+
+            <!-- EXERCISE 2 -->
+            <div class="exercise-row-card" onclick="Router.go('theory-do-re-mi')">
+              <div class="exercise-row-info">
+                <h4>🎹 Do-Re-Mi & The Keyboard</h4>
+                <span>C Major scale on keys with live corner staff viewer</span>
+              </div>
+              <span style="font-size: 12px; font-weight: 700; color: var(--theory-purple);">Play →</span>
+            </div>
+
+            <!-- EXERCISE 3 -->
+            <div class="exercise-row-card" onclick="Router.go('theory-steps-skips')">
+              <div class="exercise-row-info">
+                <h4>🐾 Steps & Skips</h4>
+                <span>Neighbor keys vs jumping the gap</span>
+              </div>
+              <span style="font-size: 12px; font-weight: 700; color: var(--theory-purple);">Play →</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN: THEORY EXERCISE 1 — HIGHER OR LOWER -->
+      <section id="screen-theory-higher-lower" class="screen game-screen">
+        <div class="nav-header-row">
+          <button class="back-btn" onclick="Router.go('theory-hub')">← Theory Studio</button>
+          <div style="display: flex; gap: 6px;">
+            <button class="back-btn" onclick="TheoryHigherLower.showPreflight()">⚙️ Rounds</button>
+            <button class="back-btn" onclick="TheoryHigherLower.playNotes()">🔊 Replay</button>
+          </div>
+        </div>
+
+        <div class="exercise-box theory-box">
+          <div class="exercise-preflight-card" id="higher-lower-preflight">
+            <div>
+              <div class="preflight-header-badge" style="color: var(--theory-purple);">🎼 Level 1 • Exercise 01</div>
+              <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 4px;">Higher or Lower</h2>
+              <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">
+                Train your ear to recognize vertical sound height, connect it to the 5-line staff, and place notes in the right direction.
+              </p>
+              <div class="round-picker-section">
+                <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--text-muted);">Select Round:</span>
+                <div class="round-picker-grid" id="higher-lower-round-pills"></div>
+                <div class="round-preview-box" id="higher-lower-preview-desc">Listen to two sounds and decide if Note 2 is higher or lower.</div>
+              </div>
+            </div>
+            <button class="btn-action" style="width: 100%; padding: 14px; background: var(--theory-purple);" onclick="TheoryHigherLower.launchGame()">▶ Start Round</button>
+          </div>
+
+          <div class="coach-bubble">
+            <div style="font-size: 20px;">↕️</div>
+            <div class="coach-text" id="higher-lower-coach-text">Listen carefully to the two notes. Was the second note higher or lower?</div>
+          </div>
+
+          <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
+            <div style="font-size: 11px; font-weight: 800; color: var(--theory-purple); text-transform: uppercase; margin-bottom: 6px;" id="higher-lower-round-title">Round 1: Blind Ear Training</div>
+            
+           <div class="staff-canvas-wrap">
+    <canvas id="higherLowerStaffCanvas"></canvas>
+</div>
+
+<div
+    id="higher-lower-keyboard"
+    style="
+    width:100%;
+    margin-top:8px;
+    margin-bottom:8px;
+    ">
+</div>
+
+            <div style="font-size: 13px; font-weight: 800; margin-top: 10px;" id="higher-lower-feedback-text">Listen to the prompt...</div>
+
+            <!-- Modal -->
+            <div class="round-complete-modal" id="higher-lower-modal">
+              <div style="font-size: 38px; margin-bottom: 6px;">🎉</div>
+              <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 4px;" id="higher-lower-modal-title">Round Cleared!</h3>
+              <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.4;">Ear accurately tracked sound direction.</p>
+              <div class="modal-btn-row">
+                <button class="btn-action secondary" style="flex: 1;" onclick="Router.go('theory-hub')">← Theory Hub</button>
+                <button class="btn-action" style="flex: 1; background: var(--theory-purple);" onclick="TheoryHigherLower.advanceRound()">▶ Next Round</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="direction-choice-row" id="higher-lower-buttons-container">
+            <button class="btn-direction-choice" onclick="TheoryHigherLower.handleUserChoice('higher')">
+              <span style="font-size: 24px;">▲</span>
+              <span>Higher</span>
+            </button>
+            <button class="btn-direction-choice" onclick="TheoryHigherLower.handleUserChoice('lower')">
+              <span style="font-size: 18px;">▼</span>
+              <span>Lower</span>
+            </button>
+          </div>
+
+          <div class="status-hud-bar">
+            <div>
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-muted);" id="higher-lower-progress-label">Challenge 1 of 5</div>
+              <div style="font-size: 13px; font-weight: 800;" id="higher-lower-status-readout">Listen to Note 1 & 2</div>
+            </div>
+            <button class="btn-action secondary" style="padding: 4px 10px; font-size: 11px;" onclick="TheoryHigherLower.playNotes()">Replay Sound</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN: THEORY EXERCISE 2 — DO-RE-MI & THE KEYBOARD -->
+      <section id="screen-theory-do-re-mi" class="screen game-screen">
+        <div class="nav-header-row">
+          <button class="back-btn" onclick="Router.go('theory-hub')">← Theory Studio</button>
+          <div style="display: flex; gap: 6px;">
+            <button class="back-btn" onclick="TheoryDoReMi.showPreflight()">⚙️ Rounds</button>
+            <button class="back-btn" onclick="TheoryDoReMi.playTargetTone()">🔊 Tone</button>
+          </div>
+        </div>
+
+        <div class="exercise-box theory-box">
+          <div class="exercise-preflight-card" id="doremi-preflight">
+            <div>
+              <div class="preflight-header-badge" style="color: var(--theory-purple);">🎼 Level 1 • Exercise 02</div>
+              <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 4px;">Do-Re-Mi & The Keyboard</h2>
+              <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">
+                Discover how pitch moves across the piano keyboard in the Key of C. Watch the corner staff note climb as you touch each key!
+              </p>
+              <div class="round-picker-section">
+                <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--text-muted);">Select Round:</span>
+                <div class="round-picker-grid" id="doremi-round-pills"></div>
+                <div class="round-preview-box" id="doremi-preview-desc">Guided Discovery: Tap glowing keys from Do (C4) to high Do (C5).</div>
+              </div>
+            </div>
+            <button class="btn-action" style="width: 100%; padding: 14px; background: var(--theory-purple);" onclick="TheoryDoReMi.launchGame()">▶ Start Round</button>
+          </div>
+
+          <div class="coach-bubble">
+            <div style="font-size: 20px;">🎹</div>
+            <div class="coach-text" id="doremi-coach-text">Explore the keys! Moving right climbs higher in pitch.</div>
+          </div>
+
+          <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
+            <div class="mini-staff-viewer">
+              <canvas id="doremiStaffCanvas" style="width: 100%; height: 100%;"></canvas>
+            </div>
+
+            <div style="font-size: 11px; font-weight: 800; color: var(--theory-purple); text-transform: uppercase;" id="doremi-round-title">Round 1: Guided Scale Discovery</div>
+            <div style="font-size: 38px; font-weight: 900; margin: 6px 0;" id="doremi-note-big">C4</div>
+            <div style="font-size: 14px; font-weight: 800; color: var(--text-secondary);" id="doremi-solfege-sub">Do (Tonic Root)</div>
+            <div style="font-size: 12px; font-weight: 700; color: var(--theory-purple); margin-top: 8px;" id="doremi-feedback-text">Tap the highlighted key on the piano!</div>
+
+            <!-- Modal -->
+            <div class="round-complete-modal" id="doremi-modal">
+              <div style="font-size: 38px; margin-bottom: 6px;">✨</div>
+              <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 4px;" id="doremi-modal-title">Scale Mastered!</h3>
+              <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.4;">All 8 notes mapped across keyboard and staff.</p>
+              <div class="modal-btn-row">
+                <button class="btn-action secondary" style="flex: 1;" onclick="Router.go('theory-hub')">← Theory Hub</button>
+                <button class="btn-action" style="flex: 1; background: var(--theory-purple);" onclick="TheoryDoReMi.advanceRound()">▶ Next Round</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="piano-keyboard-container" id="piano-keyboard">
+            <div class="piano-white-key" data-midi="60" id="key-60" onclick="TheoryDoReMi.handleKeyTouch(60)"><span class="piano-white-key-label">C</span></div>
+            <div class="piano-white-key" data-midi="62" id="key-62" onclick="TheoryDoReMi.handleKeyTouch(62)"><span class="piano-white-key-label">D</span></div>
+            <div class="piano-white-key" data-midi="64" id="key-64" onclick="TheoryDoReMi.handleKeyTouch(64)"><span class="piano-white-key-label">E</span></div>
+            <div class="piano-white-key" data-midi="65" id="key-65" onclick="TheoryDoReMi.handleKeyTouch(65)"><span class="piano-white-key-label">F</span></div>
+            <div class="piano-white-key" data-midi="67" id="key-67" onclick="TheoryDoReMi.handleKeyTouch(67)"><span class="piano-white-key-label">G</span></div>
+            <div class="piano-white-key" data-midi="69" id="key-69" onclick="TheoryDoReMi.handleKeyTouch(69)"><span class="piano-white-key-label">A</span></div>
+            <div class="piano-white-key" data-midi="71" id="key-71" onclick="TheoryDoReMi.handleKeyTouch(71)"><span class="piano-white-key-label">B</span></div>
+            <div class="piano-white-key" data-midi="72" id="key-72" onclick="TheoryDoReMi.handleKeyTouch(72)"><span class="piano-white-key-label">C'</span></div>
+
+            <div class="piano-black-key" style="left: 8.5%;" data-midi="61" onclick="TheoryDoReMi.handleKeyTouch(61)"></div>
+            <div class="piano-black-key" style="left: 21%;" data-midi="63" onclick="TheoryDoReMi.handleKeyTouch(63)"></div>
+            <div class="piano-black-key" style="left: 46%;" data-midi="66" onclick="TheoryDoReMi.handleKeyTouch(66)"></div>
+            <div class="piano-black-key" style="left: 58.5%;" data-midi="68" onclick="TheoryDoReMi.handleKeyTouch(68)"></div>
+            <div class="piano-black-key" style="left: 71%;" data-midi="70" onclick="TheoryDoReMi.handleKeyTouch(70)"></div>
+          </div>
+
+          <div class="status-hud-bar">
+            <div>
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-muted);" id="doremi-progress-counter">Note 1 of 8</div>
+              <div style="font-size: 13px; font-weight: 800;" id="doremi-hud-readout">Find Do (C4)</div>
+            </div>
+            <button class="btn-action secondary" style="padding: 4px 10px; font-size: 11px;" onclick="TheoryDoReMi.playTargetTone()">Hear</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN: THEORY EXERCISE 3 — STEPS & SKIPS -->
+      <section id="screen-theory-steps-skips" class="screen game-screen">
+        <div class="nav-header-row">
+          <button class="back-btn" onclick="Router.go('theory-hub')">← Theory Studio</button>
+          <div style="display: flex; gap: 6px;">
+            <button class="back-btn" onclick="TheoryStepsSkips.showPreflight()">⚙️ Rounds</button>
+            <button class="back-btn" onclick="TheoryStepsSkips.playPair()">🔊 Replay</button>
+          </div>
+        </div>
+
+        <div class="exercise-box theory-box">
+          <div class="exercise-preflight-card" id="stepskip-preflight">
+            <div>
+              <div class="preflight-header-badge" style="color: var(--theory-purple);">🎼 Level 1 • Exercise 03</div>
+              <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 4px;">Steps & Skips</h2>
+              <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">
+                A Step moves to the very next neighbor. A Skip jumps over a note. Train your ear and eyes to feel the difference!
+              </p>
+              <div class="round-picker-section">
+                <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--text-muted);">Select Round:</span>
+                <div class="round-picker-grid" id="stepskip-round-pills"></div>
+                <div class="round-preview-box" id="stepskip-preview-desc">Listen to two notes and decide if it was a Step or a Skip.</div>
+              </div>
+            </div>
+            <button class="btn-action" style="width: 100%; padding: 14px; background: var(--theory-purple);" onclick="TheoryStepsSkips.launchGame()">▶ Start Round</button>
+          </div>
+
+          <div class="coach-bubble">
+            <div style="font-size: 20px;">🐾</div>
+            <div class="coach-text" id="stepskip-coach-text">Did the sound take a single neighbor Step, or did it Skip a note?</div>
+          </div>
+
+          <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
+            <div style="font-size: 11px; font-weight: 800; color: var(--theory-purple); text-transform: uppercase; margin-bottom: 6px;" id="stepskip-round-title">Round 1: Ear Training</div>
+            
+            <div class="staff-canvas-wrap">
+              <canvas id="stepskipStaffCanvas" style="width: 100%; height: 100%;"></canvas>
+            </div>
+
+            <div style="font-size: 13px; font-weight: 800; margin-top: 10px;" id="stepskip-feedback-text">Listen to the two notes...</div>
+
+            <!-- Modal -->
+            <div class="round-complete-modal" id="stepskip-modal">
+              <div style="font-size: 38px; margin-bottom: 6px;">🎉</div>
+              <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 4px;" id="stepskip-modal-title">Round Cleared!</h3>
+              <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.4;">Steps and skips recognized cleanly.</p>
+              <div class="modal-btn-row">
+                <button class="btn-action secondary" style="flex: 1;" onclick="Router.go('theory-hub')">← Theory Hub</button>
+                <button class="btn-action" style="flex: 1; background: var(--theory-purple);" onclick="TheoryStepsSkips.advanceRound()">▶ Next Round</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="direction-choice-row" id="stepskip-buttons-container">
+            <button class="btn-direction-choice" onclick="TheoryStepsSkips.handleUserChoice('step')">
+              <span style="font-size: 22px;">🚶</span>
+              <span>Step (Neighbor)</span>
+            </button>
+            <button class="btn-direction-choice" onclick="TheoryStepsSkips.handleUserChoice('skip')">
+              <span style="font-size: 22px;">🦘</span>
+              <span>Skip (Jump)</span>
+            </button>
+          </div>
+
+          <div class="status-hud-bar">
+            <div>
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-muted);" id="stepskip-progress-label">Challenge 1 of 5</div>
+              <div style="font-size: 13px; font-weight: 800;" id="stepskip-status-readout">Listen to Note 1 & 2</div>
+            </div>
+            <button class="btn-action secondary" style="padding: 4px 10px; font-size: 11px;" onclick="TheoryStepsSkips.playPair()">Replay</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ME (WITH COLLAPSIBLE PROGRESS & SCORE TRACKER) -->
+      <section id="screen-me" class="screen">
+        <div class="nav-header-row">
+          <h1 class="hero-title">Profile & Setup</h1>
+          <button class="back-btn" onclick="ProfileManager.logout()">🚪 Logout</button>
+        </div>
+        <p class="hero-sub">Calibrated limits, simulator mode, and your comprehensive exercise scores.</p>
+
+        <!-- Vocal Landscape Summary -->
+        <div class="hub-card" onclick="Router.go('range-profile')">
+          <div class="card-top-row">
+            <h4 style="font-size: 14px;">Vocal Landscape</h4>
+            <span id="profile-range-tag" style="font-size: 12px; font-weight: 700; color: var(--mountain-teal);">Uncalibrated</span>
+          </div>
+          <p class="card-desc">View your Meadow, Summit, and Valley spectrum.</p>
+        </div>
+
+        <!-- COLLAPSIBLE STUDIO PROGRESS & SCORE VAULT -->
+        <div class="section-label">Exercise Scores & Milestones</div>
+        
+        <div class="vault-section open" id="vault-sec-1">
+          <div class="vault-header" onclick="MeProfileUI.toggleVault(1)">
+            <span>Stage 1: Discover</span>
+            <span style="color: var(--mountain-teal);">▼</span>
+          </div>
+          <div class="vault-content" id="vault-content-1"></div>
+        </div>
+
+        <div class="vault-section" id="vault-sec-2">
+          <div class="vault-header" onclick="MeProfileUI.toggleVault(2)">
+            <span>Stage 2: Control</span>
+            <span style="color: var(--text-muted);">▼</span>
+          </div>
+          <div class="vault-content" id="vault-content-2"></div>
+        </div>
+
+        <div class="vault-section" id="vault-sec-3">
+          <div class="vault-header" onclick="MeProfileUI.toggleVault(3)">
+            <span>Stage 3: Combine</span>
+            <span style="color: var(--text-muted);">▼</span>
+          </div>
+          <div class="vault-content" id="vault-content-3"></div>
+        </div>
+
+        <div class="vault-section" id="vault-sec-4">
+          <div class="vault-header" onclick="MeProfileUI.toggleVault(4)">
+            <span>Stage 4: Express</span>
+            <span style="color: var(--text-muted);">▼</span>
+          </div>
+          <div class="vault-content" id="vault-content-4"></div>
+        </div>
+
+        <div class="hub-card" style="margin-top: 14px;" onclick="VoiceEngine.toggleSimulation()">
+          <div class="card-top-row">
+            <h4 style="font-size: 14px;">Voice Simulator Mode</h4>
+            <span id="sim-mode-tag" class="pill-tag" style="background: #f3f4f6; color: var(--text-muted);">Off</span>
+          </div>
+          <p class="card-desc">Simulate pitch without singing out loud.</p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- 2-TAB CLEAN BOTTOM BAR (HOME | ME) -->
+    <nav id="global-nav">
+      <button class="nav-tab active" onclick="Router.go('home')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span>Home</span>
+      </button>
+
+      <button class="nav-tab" onclick="Router.go('me')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        <span>Me</span>
+      </button>
+    </nav>
+
+  </div>
+
+<!-- JAVASCRIPT ARCHITECTURE -->
+
+<script src="js/core/theory-system.js"></script>
+<script src="js/core/profile.js"></script>
+<script src="js/core/audio-engine.js"></script>
+<script src="js/core/router.js"></script>
+<script src="js/core/devtools.js"></script>
+<script src="js/voice/voice-exercises.js"></script>
+<script src="js/theory/theory-shared.js"></script>
+<script src="js/theory/theory-hub.js"></script>
+<script src="js/theory/theory-higher-lower.js"></script>
+<script src="js/theory/theory-do-re-mi.js"></script>
+<script src="js/theory/theory-steps-skips.js"></script>
+
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+    console.log("BabyBusker booting...");
+
+    if (typeof TheorySystem !== 'undefined') {
+        TheorySystem.setLevel(1);
+    }
+
+    if (typeof ProfileManager !== 'undefined') {
+        ProfileManager.init();
+    } else {
+        console.error("ProfileManager failed to load");
+    }
+});
+</script>
+
+</body>
+</html>

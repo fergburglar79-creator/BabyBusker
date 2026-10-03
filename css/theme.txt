@@ -1,0 +1,96 @@
+:root {
+
+  /* Backgrounds */
+
+  --bg-canvas: #f6f7f9;
+  --bg-surface: #ffffff;
+  --bg-subtle: #f0f2f5;
+
+  /* Text */
+
+  --text-primary: #15181e;
+  --text-secondary: #586071;
+  --text-muted: #949eb0;
+
+  /* Borders */
+
+  --border-subtle: rgba(15, 23, 42, 0.08);
+  --border-strong: rgba(15, 23, 42, 0.16);
+
+  /* Voice Studio */
+
+  --mountain-teal: #0f766e;
+  --mountain-light: #ccfbf1;
+  --mountain-accent: #14b8a6;
+  --mountain-glow: rgba(20, 184, 166, 0.35);
+
+  --beacon-gold: #f59e0b;
+  --beacon-light: #fffbeb;
+
+  --hold-cyan: #0284c7;
+  --hold-light: #e0f2fe;
+
+  --ribbon-fuchsia: #c026d3;
+  --ribbon-light: #fdf4ff;
+
+  --flight-orange: #ea580c;
+  --flight-light: #ffedd5;
+
+  --chamber-indigo: #4338ca;
+  --chamber-light: #e0e7ff;
+  --chamber-accent: #6366f1;
+  --chamber-glow: rgba(99, 102, 241, 0.35);
+
+  /* Theory Studio */
+
+  --theory-purple: #7e22ce;
+  --theory-light: #f3e8ff;
+  --theory-accent: #a855f7;
+
+  /* Other Studios */
+
+  --amber-accent: #d97706;
+  --amber-light: #fef3c7;
+
+  --sweetspot-green: #059669;
+  --sweetspot-light: rgba(16, 185, 129, 0.14);
+  --sweetspot-border: rgba(16, 185, 129, 0.35);
+
+  /* Status */
+
+  --danger-rose: #e11d48;
+  --danger-light: #ffe4e6;
+  --danger-border: #fecdd3;
+
+  --success-green: #059669;
+  --success-light: #d1fae5;
+
+  /* Shadows */
+
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 10px 30px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 20px 40px rgba(15, 23, 42, 0.09);
+
+  /* Radius */
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+
+  /* Layout */
+
+  --nav-height: 64px;
+  --header-height: 58px;
+
+  /* Fonts */
+
+  --font-stack:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+}
