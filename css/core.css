@@ -121,15 +121,21 @@
       background: var(--bg-canvas);
     }
 
-    .screen {
-      position: absolute;
-      inset: 0;
-      display: none;
-      padding: 16px 16px 90px 16px;
-      overflow-y: auto;
-      overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
-    }
+.screen {
+  position: absolute;
+  inset: 0;
+  display: none;
+
+  padding:
+    16px
+    16px
+    calc(var(--nav-height) + env(safe-area-inset-bottom) + 24px)
+    16px;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
 
     .screen.active {
       display: block;
